@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru" data-ng-app="oemC">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Online calculator</title>
+
+        <!-- bootstrap Latest compiled and minified CSS  -->
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+        <link rel="stylesheet" href="css/app.css">
+        <!-- angular  -->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+
+        <script type="text/javascript">
+
+            var oemC = angular.module('oemC', []);
+
+            oemC.controller('Ctrl', ['$scope', function ($scope) {
+                    $scope.dp = /([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|([0-9]+)$/;
+                    $scope.calc = {
+                        rawd: [],
+                        sortd: [],
+                        result: 0};
+                    $scope.calculations = [];
+
+
+                    $scope.calculation = function () {
+
+                        var ret = false;
+
+                        for (i = 0; i < 3; i++) {
+                            $scope.calc.sortd[i] = Math.abs(Number($scope.calc.rawd[i]));
+                        }
+
+                        $scope.calc.sortd = $scope.calc.sortd.sort(function (a, b) {
+                            return a - b;
+                        });
+                        ret = $scope.calc.sortd[0] * 0.4 +
+                                $scope.calc.sortd[1] * 0.4 +
+                                $scope.calc.sortd[2];
+
+
+                        $scope.calc.result = ret;
+                        return ret;
+                    };
+
+                    $scope.next = function () {
+                        if ($scope.calc.result) {
+                            $scope.calculations.push(
+                                    {rawd: angular.copy($scope.calc.rawd),
+                                        result: $scope.calculation()});
+                            document.getElementById("cell1").focus();
+                        }
+                    };
+
+                }]);
+
+        </script>
+    </head>
+
+    <body data-ng-controller="Ctrl">
+        <div class="container">
+
+            <div class="page-header">
+                <h3>Онлайн калькулятор</h3>
+
+                <p>Уважемый пользователь, данные ячеек расчитываются следующим образом:
+                </p>
+                <ol>
+                    <li>Данные преобразуются к абсолютной величине</li>
+                    <li>Сортируются по возрастанию</li>
+                    <li>Результат высчисляется по формуле:
+                        два наименьших числа умножаются,каждое, на коэффициент 0.4 
+                        и суммируются с третьим числом.
+                    </li>
+                </ol>
+                <div class="alert alert-warning">
+                    Внимание! История данных теряется после перезагрузки страницы.
+                </div>
+            </div>
+
+            <h3>Форма расчета</h3>
+            <p>Для ячеек 1,&nbsp;2,&nbsp;3 ведите данные, отделяя дробную часть точкой,
+                и получите результат.
+                &nbsp;Нажимая на кнопку <strong>'Далее'</strong> поместите результат в таблицу</p>
+            <div class="row">
+                <div class="col-md-12"> 
+                    <form name="calcF" class="form-inline" role="form">
+                        <div class="form-group">
+                            <label class="sr-only" for="cell1"  >Cell 1</label>
+                            <input autofocus="true" 
+                                   tabindex="1" type="text" name="cell1" class="form-control" id="cell1" placeholder="ячейка-1"
+                                   data-ng-pattern="dp" 
+                                   data-ng-model="calc.rawd[0]" required
+                                   data-ng-change="calculation()">
+                            <span class="label label-danger" role="alert"
+                                  data-ng-show="calcF.cell1.$error.pattern">
+                                Только числа!</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only" for="cell2" >Cell 2</label>
+                            <input tabindex="2" type="text" name="cell2" 
+                                   class="form-control" id="cell2" placeholder="ячейка-2"
+                                   data-ng-pattern="dp" data-ng-model="calc.rawd[1]" required
+                                   data-ng-change="calculation()">
+                            <span class="label label-danger" 
+                                  data-ng-show="calcF.cell2.$error.pattern">
+                                Только числа!</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only" for="cell3">Cell 3</label>
+                            <input  tabindex="3" type="text" name="cell3" class="form-control" id="cell3" placeholder="ячейка-3"
+                                    data-ng-pattern="dp" data-ng-model="calc.rawd[2]" required
+                                    data-ng-change="calculation()">
+                            <span class="label label-danger"
+                                  data-ng-show="calcF.cell3.$error.pattern">
+                                Только числа!</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="sr-only" for="ret">Result</label>
+                            <input disabled  type="text" name="ret"
+                                   class="form-control" id="ret"  
+                                   data-ng-model="calc.result"
+                                   placeholder="<не расчитано>">
+                        </div>
+
+                        <button tabindex="4" data-ng-click="next()" 
+                                class="btn btn-primary">Далее</button>
+                        <span class="help-block">Текущий расчет:
+                            {{calc.sortd[0]}} * 0.4+
+                            {{calc.sortd[1]}} * 0.4+
+                            {{calc.sortd[2]}}=
+                            {{calc.result}}
+                        </span>
+                    </form>
+
+                </div>
+            </div>
+
+            <h3>История результатов</h3>
+            <p>в таблице представленны результаты предыдущих расчетов</p>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ячейка 1</th>
+                                <th>Ячейка 2</th>
+                                <th>Ячейка 3</th>
+                                <th>Результат</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="calc in calculations">
+                                <td>{{calc.rawd[0]}}</td>
+                                <td>{{calc.rawd[1]}}</td>
+                                <td>{{calc.rawd[2]}}</td>
+                                <td>{{calc.result}}</td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </div> <!-- /container -->
+
+
+    </body>
+</html>
