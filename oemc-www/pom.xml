@@ -73,6 +73,19 @@
 
             <build>
                 <finalName>oemc</finalName>
+		    <plugins>
+		      <plugin>
+    			<artifactId>maven-war-plugin</artifactId>
+                    	    <configuration>
+                        	<webResources>
+                            	    <resource>
+                                	<directory>src/jetty/resources</directory> 
+                                        <filtering>true</filtering>
+                                    </resource>   
+	                        </webResources>
+    	                    </configuration>
+        	        </plugin>
+    		    </plugins>
             </build>
 
         </profile>
