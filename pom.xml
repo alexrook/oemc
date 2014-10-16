@@ -26,6 +26,7 @@
     </repositories>
 
     <dependencyManagement>
+
         <dependencies>
 
             <dependency>
@@ -42,7 +43,14 @@
                 <scope>import</scope>
             </dependency>
 
+	    <dependency>
+	        <groupId>org.json</groupId>
+	        <artifactId>json</artifactId>
+	        <version>20140107</version>
+	    </dependency>
+
         </dependencies>
+
     </dependencyManagement>
 
     <build>
