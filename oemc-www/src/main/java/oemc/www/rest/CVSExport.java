@@ -25,7 +25,7 @@ public class CVSExport {
     public CVSExport() {
     }
 
-    @Path("cvs")
+    @Path("csv")
     @POST
     @Consumes("application/json")
     @Produces("application/json")
