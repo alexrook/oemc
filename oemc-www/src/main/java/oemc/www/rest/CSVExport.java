@@ -9,6 +9,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.regex.*;
+import javax.ws.rs.HeaderParam;
+import oemc.utils.csv.FieldSeparatorEnum;
+import oemc.utils.csv.LineSeparatorEnum;
+import oemc.utils.json.Json2CSV;
 
 @Path("exp")
 public class CSVExport {
@@ -16,8 +21,9 @@ public class CSVExport {
     @Context
     private UriInfo context;
 
-    private final String[] badSymvols = {",", ";"};
+   
 
+   
     public CSVExport() {
     }
 
@@ -25,48 +31,46 @@ public class CSVExport {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String expCSV(String content) {
+    public String expCSV(@HeaderParam("X-LineSeparator") String lineSeparator,
+            @HeaderParam("User-Agent") String useragent,
+            @HeaderParam("X-FieldSeparator") String fieldSeparator,
+            String content) {
+
+        Json2CSV converter = new Json2CSV((lineSeparator != null) ? LineSeparatorEnum.get(lineSeparator) : LineSeparatorEnum.get(useragent),
+                (fieldSeparator != null) ? FieldSeparatorEnum.get(fieldSeparator) : FieldSeparatorEnum.OTHER);
         JSONArray a = new JSONArray(content);
 
-        return jsonArrayToCSV(a, ",", null);
+       return converter.export(a);
     }
 
-    private String jsonArrayToCSV(JSONArray a, String delimitier, String lineSeparator) {
-
-        delimitier = ((delimitier != null) && (delimitier.length() > 0))
-                ? delimitier : ",";
-
-        lineSeparator = ((lineSeparator != null) && (lineSeparator.length() > 0))
-                ? lineSeparator : System.lineSeparator();
-
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < a.length(); i++) {
-            buf.append(jsonObjToCSVRow(a.get(i), delimitier));
-            buf.append(lineSeparator);
-        }
-
-        return buf.toString();
-    }
  
-    private String jsonObjToCSVRow(Object val, String delimiter) {
-        StringBuilder buf = new StringBuilder();
-        if (val instanceof JSONObject) {
-            for (Object key : ((JSONObject) val).keySet()) {
+    
+    public static void main(String args[]) {
 
-                buf.append(((JSONObject) val).get((String) key).toString());
-                buf.append(delimiter);
-            }
-            buf.deleteCharAt(buf.length() - 1);
-        } else if ((val instanceof JSONArray)) {
-            for (int i = 0; i < ((JSONArray) val).length(); i++) {
+        String s = System.lineSeparator();
+        System.out.println(s);
+        Pattern p = Pattern.compile("(\\s)|([,;'\"])");
 
-                buf.append(((JSONArray) val).get(i));
-                buf.append(delimiter);
-            }
-            buf.deleteCharAt(buf.length() - 1);
-        } else {
-            buf.append(val.toString());
-        }
-       return buf.toString();
+        Matcher m = p.matcher("sdcsdcsdc'sdc;");
+        System.out.println("find=" + m.find());
+        System.out.println("groupCount=" + m.groupCount());
+        System.out.println("group=" + m.group());
+        System.out.println("group1=" + m.group(1));
+        System.out.println("group2=" + m.group(2));
+        System.out.println("matches=" + m.matches());
+
+        System.out.println("find=" + m.find());
+        System.out.println("groupCount=" + m.groupCount());
+        System.out.println("group=" + m.group());
+        System.out.println("group1=" + m.group(1));
+        System.out.println("group=" + m.group(2));
+        System.out.println("matches=" + m.matches());
+
+        System.out.println("find=" + m.find());
+        System.out.println("groupCount=" + m.groupCount());
+        System.out.println("group=" + m.group());
+        System.out.println("group1=" + m.group(1));
+        System.out.println("group=" + m.group(2));
+        System.out.println("matches=" + m.matches());
     }
 }
