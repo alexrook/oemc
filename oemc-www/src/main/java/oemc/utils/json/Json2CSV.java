@@ -1,5 +1,6 @@
 package oemc.utils.json;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import oemc.utils.csv.FieldSeparatorEnum;
 import oemc.utils.csv.LineSeparatorEnum;
@@ -12,12 +13,33 @@ import org.json.JSONObject;
  */
 public class Json2CSV {
 
-    private final Pattern hSymbols = Pattern.compile("(\\s)|([;,\"'])");
+    public static enum ExportType {
+
+        SIMPLE, STRICT, CUSTOM;
+
+        private static final Pattern custom = Pattern.compile("[Cc]ustom"),
+                strict = Pattern.compile("[Ss]trict");
+
+        public static ExportType get(String val) {
+            if (val != null) {
+                Matcher m = custom.matcher(val);
+                if (m.find()) {
+                    return CUSTOM;
+                }
+                m = strict.matcher(val);
+                if (m.find()) {
+                    return STRICT;
+                }
+            }
+            return SIMPLE;
+        }
+
+    }
 
     private LineSeparatorEnum lineS = LineSeparatorEnum.SYSTEM;
     private FieldSeparatorEnum fieldS = FieldSeparatorEnum.OTHER;
 
-    private boolean useStrict = true;
+    private ExportType exportType = ExportType.SIMPLE;
     private final String[] escapeCandidates = {"\"", "'", "`", "#"};
     private String fieldEscaper = escapeCandidates[0];
 
@@ -85,16 +107,46 @@ public class Json2CSV {
     }
 
     private String hideChars(String field) {
-        if (useStrict) {
-            //TODO
-        } else {
-            //спрятать символы равные сепаратору полей в поле
-            field = field.replaceAll(fieldS.getPattern(), hide(fieldS.getSeparator()));
 
-            //спрятать все поле если содержит line-breaks
-            if (field.contains(lineS.getSeparator())) {
-                field = hide(field);
+        switch (exportType) {
+
+            case STRICT: {
+                //based on : http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
+                StringBuilder buf = new StringBuilder();
+                field = field.trim();//TODO: only left trim here
+                if ((field.contains("\""))
+                        || (field.contains(lineS.getSeparator()))
+                        || (field.contains(fieldS.getSeparator()))
+                        || (Pattern.compile("\\s").matcher(field).find())) {
+
+                    buf.append(field.replaceAll("\"", "\"\""));
+                    field = hide(buf.toString());
+                }
+
+                break;
             }
+
+            case CUSTOM: {
+                field = field.trim();//TODO: only left trim here
+                if ((field.contains(lineS.getSeparator()))
+                        || (field.contains(fieldS.getSeparator()))
+                        || (Pattern.compile("\\s").matcher(field).find())) {
+
+                    field = hide(field);
+                }
+
+                break;
+
+            }
+            case SIMPLE: {
+                //спрятать символы равные сепаратору полей в поле
+                field = field.replaceAll(fieldS.getPattern(), hide(fieldS.getSeparator()));
+                //спрятать все поле если содержит line-breaks
+                if (field.contains(lineS.getSeparator())) {
+                    field = hide(field);
+                }
+            }
+
         }
 
         return field;
@@ -107,12 +159,12 @@ public class Json2CSV {
                 .toString();
     }
 
-    public boolean isUseStrict() {
-        return useStrict;
+    public ExportType getExportType() {
+        return exportType;
     }
 
-    public void setUseStrict(boolean useStrict) {
-        this.useStrict = useStrict;
+    public void setExportType(String type) {
+        this.exportType = ExportType.get(type);
     }
 
 }
