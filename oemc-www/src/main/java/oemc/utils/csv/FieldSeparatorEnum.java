@@ -19,6 +19,10 @@ public enum FieldSeparatorEnum {
         return val;
     }
 
+    public String getPattern() {
+        return Pattern.quote(this.getSeparator());
+    }
+
     private FieldSeparatorEnum(String val) {
         this.val = val;
     }

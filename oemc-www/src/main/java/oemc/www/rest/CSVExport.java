@@ -38,6 +38,9 @@ public class CSVExport {
 
         Json2CSV converter = new Json2CSV((lineSeparator != null) ? LineSeparatorEnum.get(lineSeparator) : LineSeparatorEnum.get(useragent),
                 (fieldSeparator != null) ? FieldSeparatorEnum.get(fieldSeparator) : FieldSeparatorEnum.OTHER);
+        
+        converter.setUseStrict(false);
+        
         JSONArray a = new JSONArray(content);
 
        return converter.export(a);
@@ -49,6 +52,9 @@ public class CSVExport {
 
         String s = System.lineSeparator();
         System.out.println(s);
+         System.out.println(Pattern.quote("+"));
+         System.out.println("sdcsdc+++".replaceAll(Pattern.quote("+"), "="));
+         
         Pattern p = Pattern.compile("(\\s)|([,;'\"])");
 
         Matcher m = p.matcher("sdcsdcsdc'sdc;");
@@ -66,11 +72,6 @@ public class CSVExport {
         System.out.println("group=" + m.group(2));
         System.out.println("matches=" + m.matches());
 
-        System.out.println("find=" + m.find());
-        System.out.println("groupCount=" + m.groupCount());
-        System.out.println("group=" + m.group());
-        System.out.println("group1=" + m.group(1));
-        System.out.println("group=" + m.group(2));
-        System.out.println("matches=" + m.matches());
+      
     }
 }

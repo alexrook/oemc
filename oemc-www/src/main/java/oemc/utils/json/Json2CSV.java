@@ -1,6 +1,5 @@
 package oemc.utils.json;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import oemc.utils.csv.FieldSeparatorEnum;
 import oemc.utils.csv.LineSeparatorEnum;
@@ -13,17 +12,28 @@ import org.json.JSONObject;
  */
 public class Json2CSV {
 
-    private final Pattern badSymbols = Pattern.compile("(\\s)|([;,\"'])");
+    private final Pattern hSymbols = Pattern.compile("(\\s)|([;,\"'])");
 
     private LineSeparatorEnum lineS = LineSeparatorEnum.SYSTEM;
     private FieldSeparatorEnum fieldS = FieldSeparatorEnum.OTHER;
 
     private boolean useStrict = true;
+    private final String[] escapeCandidates = {"\"", "'", "`", "#"};
+    private String fieldEscaper = escapeCandidates[0];
 
     public Json2CSV(LineSeparatorEnum lineS, FieldSeparatorEnum fieldS) {
         this.lineS = lineS;
         this.fieldS = fieldS;
+        setFieldEscaper();
+    }
 
+    private void setFieldEscaper() {
+        for (String candidate : escapeCandidates) {
+            if (!(fieldS.getSeparator().contains(candidate))) {
+                this.fieldEscaper = candidate;
+                break;
+            }
+        }
     }
 
     public String export(JSONArray a) {
@@ -39,23 +49,23 @@ public class Json2CSV {
 
     public String convert2Row(JSONObject val) {
         StringBuilder buf = new StringBuilder();
-        for (Object key : ((JSONObject) val).keySet()) {
 
-            
+        for (Object key : val.keySet()) {
             buf.append(hideChars(
-                    ((JSONObject) val).get((String) key).toString()));
+                    val.get((String) key).toString()));
             buf.append(fieldS.getSeparator());
         }
+
         buf.deleteCharAt(buf.length() - 1);
         return buf.toString();
     }
 
     public String convert2Row(JSONArray val) {
         StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < ((JSONArray) val).length(); i++) {
+        for (int i = 0; i < val.length(); i++) {
 
             buf.append(hideChars(
-                    ((JSONArray) val).get(i).toString()));
+                    val.get(i).toString()));
             buf.append(fieldS.getSeparator());
         }
         buf.deleteCharAt(buf.length() - 1);
@@ -74,9 +84,27 @@ public class Json2CSV {
 
     }
 
-    private String hideChars(String row) {
-        //TODO
-        return row;
+    private String hideChars(String field) {
+        if (useStrict) {
+            //TODO
+        } else {
+            //спрятать символы равные сепаратору полей в поле
+            field = field.replaceAll(fieldS.getPattern(), hide(fieldS.getSeparator()));
+
+            //спрятать все поле если содержит line-breaks
+            if (field.contains(lineS.getSeparator())) {
+                field = hide(field);
+            }
+        }
+
+        return field;
+    }
+
+    private String hide(String val) {
+        return (new StringBuilder(this.fieldEscaper).
+                append(val).
+                append(this.fieldEscaper))
+                .toString();
     }
 
     public boolean isUseStrict() {
