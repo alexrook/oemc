@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- *
  * @author moroz
  */
 public class Json2CSV {

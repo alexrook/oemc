@@ -4,6 +4,22 @@ oemC.controller('Ctrl', ['$scope', function ($scope) {
 
         $scope.dp = /([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|([0-9]+)$/;
 
+        var lineSeparators = [
+            {name: 'Юникс', value: 'unix'},
+            {name: 'Дос', value: 'doc'}
+        ], fieldSeparators = [
+            {name: 'Запятая', value: ','},
+            {name: 'Точка с запятой', value: ';'},
+            {name: 'Tab', value: 'tab'},
+            {name: 'Пробел', value: 'space'}
+        ];
+        $scope.export = {
+            lineSeparators:lineSeparators,
+            fieldSeparators:fieldSeparators,
+            lineSeparator: lineSeparators[0],
+            fieldSeparator: fieldSeparators[0]
+        };
+
         $scope.calc = {
             rawd: [],
             sortd: [],
