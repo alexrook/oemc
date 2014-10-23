@@ -1,7 +1,8 @@
 var oemC = angular.module('oemC', []);
 
-oemC.controller('Ctrl', ['$scope', function ($scope) {
+oemC.controller('Ctrl', ['$scope', '$http', function ($scope, $http) {
 
+        var cell1 = document.getElementById("cell1");
         $scope.dp = /([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|([0-9]+)$/;
 
         var lineSeparators = [
@@ -14,8 +15,8 @@ oemC.controller('Ctrl', ['$scope', function ($scope) {
             {name: 'Пробел', value: 'space'}
         ];
         $scope.export = {
-            lineSeparators:lineSeparators,
-            fieldSeparators:fieldSeparators,
+            lineSeparators: lineSeparators,
+            fieldSeparators: fieldSeparators,
             lineSeparator: lineSeparators[0],
             fieldSeparator: fieldSeparators[0]
         };
@@ -52,12 +53,35 @@ oemC.controller('Ctrl', ['$scope', function ($scope) {
                 $scope.calculations.push(
                         {rawd: angular.copy($scope.calc.rawd),
                             result: $scope.calculation()});
-                var cell1 = document.getElementById("cell1");
                 cell1.focus();
                 cell1.select();
             }
         };
 
+        $scope.exportData = function () {
+            $('#myModal').modal('hide');
+          
+            var postData = [];
+            for (i = 0; i < $scope.calculations.length; i++) {
+                var row = angular.copy($scope.calculations[i].rawd);
+                row.push($scope.calculations[i].result);
+                postData.push(row);
+           }
+          
+           $http.post(
+                    'rst/exp/csv',
+                    postData,
+                    {
+                        headers: {
+                            'X-LineSeparator': $scope.export.lineSeparator.value,
+                            'X-FieldSeparator': $scope.export.fieldSeparator.value,
+                            'X-ExportType': 'strict'
+                        }
+                    }
+            );
+            cell1.focus();
+            cell1.select();
+        };
     }]);
 
 
