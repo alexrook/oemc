@@ -60,15 +60,15 @@ oemC.controller('Ctrl', ['$scope', '$http', function ($scope, $http) {
 
         $scope.exportData = function () {
             $('#myModal').modal('hide');
-          
+
             var postData = [];
             for (i = 0; i < $scope.calculations.length; i++) {
                 var row = angular.copy($scope.calculations[i].rawd);
                 row.push($scope.calculations[i].result);
                 postData.push(row);
-           }
-          
-           $http.post(
+            }
+
+            $http.post(
                     'rst/exp/csv',
                     postData,
                     {
@@ -78,7 +78,15 @@ oemC.controller('Ctrl', ['$scope', '$http', function ($scope, $http) {
                             'X-ExportType': 'strict'
                         }
                     }
-            );
+            ).success(function (data, status, headers, config) {
+
+                console.log(headers("Location"));
+
+                window.location = headers("Location");
+
+            }).error(function (data, status, headers, config) {
+                //TODO: error while export csv
+            });
             cell1.focus();
             cell1.select();
         };

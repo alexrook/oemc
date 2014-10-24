@@ -1,8 +1,6 @@
 package oemc.www.rest;
 
 import java.net.URI;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -11,16 +9,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import oemc.utils.Storage;
 import oemc.utils.csv.FieldSeparatorEnum;
 import oemc.utils.csv.LineSeparatorEnum;
 import oemc.utils.json.Json2CSV;
 
-@Path("exp")
+@Path("exp/csv")
 public class CSVExport {
 
-    @Context
-    private UriInfo context;
+    private final Storage storage = Storage.getSingle();
 
     private String buf;
 
@@ -48,7 +47,6 @@ public class CSVExport {
      *
      * @return CSV file
      */
-    @Path("csv")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
@@ -65,21 +63,25 @@ public class CSVExport {
             converter.setExportType(exportType);
 
             JSONArray a = new JSONArray(content);
-
+            buf = converter.export(a);
+            String key = Integer.toString(buf.hashCode());
+            storage.put(key, buf);
             return Response
                     .status(Response.Status.CREATED)
-                    .location(new URI("1"))
+                    .location(new URI("exp/csv/" + key))
                     .build();
         } catch (Exception e) {
             return Response.serverError().build();
         }
     }
 
-    @Path("1")
+    @Path("{id}")
     @GET
-    public Response get() {
+    public Response get(@PathParam("id") String id) {
         return Response
-                .ok(buf)
+                .ok(storage.get(id))
+                .header("Content-Type", "application/vnd.ms-excel")
+                .header("Content-Disposition", "attachment; filename="+id+".csv")
                 .build();
     }
 }
