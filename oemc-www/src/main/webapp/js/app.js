@@ -80,12 +80,8 @@ oemC.controller('Ctrl', ['$scope', '$http', function ($scope, $http) {
                     }
             ).success(function (data, status, headers, config) {
 
-                console.log(headers("Location"));
-
                 window.location = headers("Location");
 
-            }).error(function (data, status, headers, config) {
-                //TODO: error while export csv
             });
             cell1.focus();
             cell1.select();

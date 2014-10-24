@@ -12,7 +12,7 @@ public class Storage {
     private static Storage singleton;
     
     private Storage() {
-        System.out.println("storage created");
+      //  System.out.println("storage created");
         buf = new HashMap<String, String>(15);
     }
     
