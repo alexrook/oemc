@@ -8,7 +8,9 @@ import java.util.regex.Pattern;
  */
 public enum LineSeparatorEnum {
 
-    DOS("\r\n"), UNIX("\n"), SYSTEM(System.lineSeparator());
+    DOS("\r\n"), UNIX("\n"), 
+    SYSTEM(System.getProperty("line.separator"));
+    //SYSTEM(System.lineSeparator()); since java 7
 
     public static final Pattern unixP = Pattern.compile("([Ll]inux)|([Uu]nix)|([Ff]reebsd)|([Aa]ndroid)|([Mm]ac)");
     public static final Pattern dosP = Pattern.compile("([Ww]indows)|([Dd]os)");
