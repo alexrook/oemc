@@ -7,7 +7,7 @@ oemC.controller('Ctrl', ['$scope', '$http', function ($scope, $http) {
 
         var lineSeparators = [
             {name: 'Юникс', value: 'unix'},
-            {name: 'Дос', value: 'doc'}
+            {name: 'Дос', value: 'dos'}
         ], fieldSeparators = [
             {name: 'Запятая', value: ','},
             {name: 'Точка с запятой', value: ';'},
