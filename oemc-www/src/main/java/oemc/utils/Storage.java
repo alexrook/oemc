@@ -1,19 +1,50 @@
 package oemc.utils;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author moroz
  */
 public class Storage {
     
-    private final HashMap<String, String> buf;
+    /*
+     * peep on: 
+     *       http://youtu.be/5Iu4ZUcrJ0g?list=PL6jg6AGdCNaWtTjsYJ9t0VaITpIZm4pMt
+     *       many thanks to the author of this video
+     */
+    public static class SimpleLRUCache<K, V> extends LinkedHashMap<K, V> {
+        
+        private final int capacity;
+        
+        public SimpleLRUCache(int capacity) {
+            /*
+             *   
+             *   loadFactor>1 означает не расширять карту при заполнении
+             *   accessOrder=true - порядок по "доступу" 
+             *   наиболее часто запрашиваемые сущности попадают в конец карты
+             *   наименее часто запрашиваемые попадают в начало и становятся кандидатами на удаление методом removeEldestEntry
+             *
+             */
+            super(capacity + 1, 1.1f, true);
+            this.capacity = capacity;
+        }
+        
+        @Override
+        protected boolean removeEldestEntry(Entry<K, V> eldest) {
+            return this.size() > capacity;
+        }
+        
+    }
     
     private static Storage singleton;
+    private final Map<String, String> cache;
     
     private Storage() {
-      //  System.out.println("storage created");
-        buf = new HashMap<String, String>(15);
+        //I do not have more than 12 users
+        cache = Collections.synchronizedMap(new SimpleLRUCache<String, String>(12));
     }
     
     public static Storage getSingle() {
@@ -24,11 +55,11 @@ public class Storage {
     }
     
     public void put(String key, String val) {
-        buf.put(key, val);
+        cache.put(key, val);
     }
     
     public String get(String key) {
-        return buf.get(key);
+        return cache.get(key);
     }
     
 }
